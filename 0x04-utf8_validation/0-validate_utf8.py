@@ -5,34 +5,25 @@ represents a valid UTF-8 encoding
 
 
 def validUTF8(data):
-    """Count the remaining bytes to read
-    for the current character
     """
-    remaining_bytes = 0
+    data: a list of integers
+    Return: True if data is a valid UTF-8
+    encoding, else return False
+    """
+    byte_remaining = 0
 
-    for byte in data:
-        # Check if the byte is a continuation byte
-        if remaining_bytes > 0:
-            # Check if the two most significant bits are '10'
-            if (byte >> 6) == 0b10:
-                remaining_bytes -= 1
-            else:
+    for i in data:
+        if byte_remaining == 0:
+            if i >> 5 == 0b110 or i >> 5 == 0b1110:
+                byte_remaining = 1
+            elif i >> 4 == 0b1110:
+                byte_remaining = 2
+            elif i >> 3 == 0b11110:
+                byte_remaining = 3
+            elif i >> 7 == 0b1:
                 return False
         else:
-            """Count the number of leading '1' bits
-            to determine the character length
-            """
-            mask = 0b10000000
-            while byte & mask:
-                remaining_bytes += 1
-                mask = mask >> 1
-
-            # A single byte character
-            if remaining_bytes == 0:
-                continue
-
-            # Invalid UTF-8 character length
-            if remaining_bytes < 1 or remaining_bytes > 3:
+            if i >> 6 != 0b10:
                 return False
-
-    return remaining_bytes == 0
+            byte_remaining -= 1
+    return byte_remaining == 0
