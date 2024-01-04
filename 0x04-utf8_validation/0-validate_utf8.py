@@ -5,37 +5,34 @@ represents a valid UTF-8 encoding
 
 
 def validUTF8(data):
-    """Count the number of leading 1s in the byte"""
-    def countLeadingOnes(byte):
-        count = 0
-        mask = 1 << 7
-        while byte & mask:
-            count += 1
-            mask >>= 1
-        return count
+    """Count the remaining bytes to read
+    for the current character
+    """
+    remaining_bytes = 0
 
+    for byte in data:
+        # Check if the byte is a continuation byte
+        if remaining_bytes > 0:
+            # Check if the two most significant bits are '10'
+            if (byte >> 6) == 0b10:
+                remaining_bytes -= 1
+            else:
+                return False
+        else:
+            """Count the number of leading '1' bits
+            to determine the character length
+            """
+            mask = 0b10000000
+            while byte & mask:
+                remaining_bytes += 1
+                mask = mask >> 1
 
-# Check if the byte is a valid start of a multi-byte sequence
+            # A single byte character
+            if remaining_bytes == 0:
+                continue
 
+            # Invalid UTF-8 character length
+            if remaining_bytes < 1 or remaining_bytes > 3:
+                return False
 
-def isValidStart(byte):
-    leadingOnes = countLeadingOnes(byte)
-    if leadingOnes == 1 or leadingOnes > 4:
-        return False
-        return True
-
-    # Main validation logic
-    i = 0
-    while i < len(data):
-        leadingOnes = countLeadingOnes(data[i])
-        if not isValidStart(data[i]):
-            return False
-        if leadingOnes > 1:
-            i += 1
-            for j in range(i, i + leadingOnes - 1):
-                if j >= len(data) or countLeadingOnes(data[j]) != 1:
-                    return False
-                i += 1
-        i += 1
-
-    return True
+    return remaining_bytes == 0
