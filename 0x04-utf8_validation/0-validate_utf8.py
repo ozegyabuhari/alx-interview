@@ -14,11 +14,14 @@ def validUTF8(data):
             mask >>= 1
         return count
 
-    # Check if the byte is a valid start of a multi-byte sequence
-    def isValidStart(byte):
-        leadingOnes = countLeadingOnes(byte)
-        if leadingOnes == 1 or leadingOnes > 4:
-            return False
+
+# Check if the byte is a valid start of a multi-byte sequence
+
+
+def isValidStart(byte):
+    leadingOnes = countLeadingOnes(byte)
+    if leadingOnes == 1 or leadingOnes > 4:
+        return False
         return True
 
     # Main validation logic
